@@ -95,7 +95,7 @@
             <input type="text" id="messageInput" placeholder="Type a message..." onkeydown="handleEnter(event)">
             <button onclick="sendMessage()">Send</button>
         </div>
-        <select id="userSelect"></select>
+        <select id="userSelect" onchange="updateCurrentUser()"></select>
         <div class="button-container">
             <button onclick="addUser()">Add User</button>
             <button onclick="removeUser()">Remove User</button>
@@ -106,18 +106,23 @@
     
     <script>
         let users = ["Alice", "Bob"];
-        let currentUserIndex = 0;
+        let currentUser = users[0];
 
         function populateUserSelect() {
             let userSelect = document.getElementById("userSelect");
             userSelect.innerHTML = "";
             users.forEach((user, index) => {
                 let option = document.createElement("option");
-                option.value = index;
+                option.value = user;
                 option.textContent = user;
                 userSelect.appendChild(option);
             });
-            userSelect.selectedIndex = currentUserIndex;
+            userSelect.value = currentUser;
+        }
+
+        function updateCurrentUser() {
+            let userSelect = document.getElementById("userSelect");
+            currentUser = userSelect.value;
         }
 
         function sendMessage() {
@@ -127,18 +132,8 @@
             if (messageInput.value.trim() === "") return;
             
             let messageDiv = document.createElement("div");
-            messageDiv.classList.add("message", "user-message");
-            let messageContainer = document.createElement("div");
-            messageContainer.classList.add("message-container");
-
-            if (currentUserIndex !== 0) {
-                messageDiv.classList.add("other-message");
-                messageContainer.classList.add("right");
-            }
-            
-            messageDiv.innerText = users[currentUserIndex] + ": " + messageInput.value;
-            messageContainer.appendChild(messageDiv);
-            chatBox.appendChild(messageContainer);
+            messageDiv.textContent = currentUser + ": " + messageInput.value;
+            chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
             messageInput.value = "";
         }
@@ -159,8 +154,8 @@
 
         function removeUser() {
             if (users.length > 1) {
-                users.splice(currentUserIndex, 1);
-                currentUserIndex = 0;
+                users = users.filter(user => user !== currentUser);
+                currentUser = users[0];
                 populateUserSelect();
             } else {
                 alert("At least one user must remain.");
@@ -181,14 +176,6 @@
         function clearChat() {
             document.getElementById("chatBox").innerHTML = "";
         }
-
-        document.addEventListener("keydown", function(event) {
-            if (event.key === "Tab") {
-                event.preventDefault();
-                currentUserIndex = (currentUserIndex + 1) % users.length;
-                document.getElementById("userSelect").selectedIndex = currentUserIndex;
-            }
-        });
 
         populateUserSelect();
     </script>
